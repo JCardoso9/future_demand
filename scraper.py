@@ -1,9 +1,6 @@
-# import selenium
 import requests
 from bs4 import BeautifulSoup
 import re
-from db_connector import create_table, insert_events
-import psycopg2
 
 
 def parse_elements(job_elements):
@@ -15,11 +12,7 @@ def parse_elements(job_elements):
 
         date_place = je.find("div", class_="date-place")
         time_div = date_place.find("div", class_="right")
-        time = time_div.find("span", class_="time").text
-        if "/" in time:
-            times = time.split("/")
-        else:
-            times = None
+        times = time_div.find("span", class_="time").text.split("/")
 
         location = date_place.find("p", class_="location").text.strip()
 
@@ -40,7 +33,7 @@ def parse_elements(job_elements):
         if composers == sponsor_txt:
             composers = ""
 
-        if times is None:
+        for time in times:
             info = {
                 "surtitle": surtitle,
                 "artists": artists,
@@ -53,21 +46,6 @@ def parse_elements(job_elements):
                 "time": time,
             }
             events.append(info)
-        
-        else:
-            for time in times:
-                info = {
-                    "surtitle": surtitle,
-                    "artists": artists,
-                    "composers": composers,
-                    "img_link": image_link,
-                    "sponsor": sponsor_txt,
-                    "location":location,
-                    "date": date,
-                    "event_id": event_id,
-                    "time": time,
-                }
-                events.append(info)
 
     return events
 
